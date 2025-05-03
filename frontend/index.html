@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Marketing Content Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+    textarea { width: 100%; height: 100px; margin-top: 10px; }
+    input, button { padding: 10px; margin-top: 10px; width: 100%; font-size: 1rem; }
+    .response-box { margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9; }
+    /* Spinner styles */
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      display: none; /* Hidden by default */
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Generate Marketing Content</h1>
+  <input type="text" id="topic" placeholder="Enter a topic, e.g., Agile Methodology" />
+  <button onclick="generateContent()">Generate</button>
+
+  <!-- Spinner element -->
+  <div id="spinner" class="spinner"></div>
+
+  <div class="response-box" id="facebookPostContainer" hidden>
+    <h2>Facebook Post</h2>
+    <textarea id="facebookPost" readonly></textarea>
+  </div>
+
+  <div class="response-box" id="videoScriptContainer" hidden>
+    <h2>Video Script</h2>
+    <textarea id="videoScript" readonly></textarea>
+  </div>
+
+  <script>
+    async function generateContent() {
+      const topic = document.getElementById("topic").value.trim();
+      if (!topic) {
+        alert("Please enter a topic.");
+        return;
+      }
+
+      // Show the spinner
+      document.getElementById("spinner").style.display = "block";
+
+      try {
+        const response = await fetch("http://localhost:8000/marketing-content", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ topic })
+        });
+
+        if (!response.ok) {
+          throw new Error("Server error: " + response.statusText);
+        }
+
+        const data = await response.json();
+
+        document.getElementById("facebookPost").value = data.facebook_post || "No content.";
+        document.getElementById("videoScript").value = data.video_script || "No content.";
+
+        document.getElementById("facebookPostContainer").hidden = false;
+        document.getElementById("videoScriptContainer").hidden = false;
+
+      } catch (error) {
+        alert("Error: " + error.message);
+      } finally {
+        // Hide the spinner after response
+        document.getElementById("spinner").style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+fastapi
+langchain
+langchain_core
+langchain_ollama
+load_dotenv
+python-dotenv
+uvicorn
